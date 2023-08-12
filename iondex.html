@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <title>weather</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <i class="fa-solid fa-location-dot fa-bounce icon" style="color: #1dd110;"></i>
+        <input
+          type="text"
+          placeholder="Enter city name"
+          class="input-box"
+        />
+        <button
+          class="searchBtn fa-solid fa-magnifying-glass icon2"
+          value="ok"
+        ></button>
+      </div>
+      <div class="location-error">
+        <h1>Sorry Location not found!!</h1>
+        <img src="error.webp" alt="404 error">
+      </div>
+      <div class="w-body">
+      <div class="img">
+        <img src="sun.webp" alt="Weather Image" class="weather-img"/>
+        <div class="TD">
+          <p class="temperature">0 <sup>°C</sup></p>
+          <p class="description">Light Rain</p>
+        </div>
+      </div>
+      <div class="details">
+        <div class="humid">
+          <i class="fa-solid fa-droplet fa-fade" style="color: #1a5fd5"></i>
+
+          <div class="text">
+            <p class="humidity">20%</p>
+            <p class="humidity">Humidity</p>
+          </div>
+        </div>
+        <div class="windS">
+          <i class="fa-solid fa-wind fa-flip"
+                style="color: rgb(72, 223, 243)"
+               ></i>
+              <div class="text">
+                <p class="wind">12Km\h</p>
+                 <p class="wind">Wind Speed</p>
+              </div>
+         </div>
+      </div>
+    </div> 
+    </div>
+    <div class="dev"><p >By</p>
+      <p class="maker">Rushikesh Gajanan Suryawanshi</p>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
