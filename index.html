@@ -10,17 +10,370 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <style>
+/* Container styling */
+.code-box {
+    background: #1e1e1e;      /* dark background */
+    color: #dcdcdc;           /* light text */
+    padding: 15px;
+    border-radius: 8px;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 14px;
+    overflow-x: auto;         /* horizontal scroll if long */
+    border: 1px solid #333;
+}
+
+/* Optional: syntax look (simple highlight) */
+.code-box .keyword { color: #569cd6; }
+.code-box .func { color: #dcdcaa; }
+
+</style>
     <link rel="stylesheet" href="style.css" />
     <title>weather</title>
   </head>
   <body>
     <div class="container">
       <div class="header">
-        <pre><code>
-for (int i = 0; i < 10; i++) {
-    printf("Hello\n");
-}
+      <h3>application.yml</h3>
+
+<div class="code-box">
+<pre><code>
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/blogdb
+
+server:
+  port: 8080
+
+jwt:
+  secret: my-super-secure-demo-secret-key
+  expiration-ms: 86400000
+
 </code></pre>
+</div>
+<h3>BlogApplication.java</h3>
+
+<div class="code-box">
+<pre><code>
+package com.example.blog;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class BlogApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(BlogApplication.class, args);
+    }
+}
+
+</code></pre>
+</div>
+<h3>User.java</h3>
+
+<div class="code-box">
+<pre><code>
+package com.example.blog.model;
+
+import com.example.blog.model.enums.Role;
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Document("users")
+public class User {
+
+    @Id
+    private String id;
+
+    private String username;
+    private String email;
+    private String password;
+    private Role role;
+}
+
+</code></pre>
+</div>
+<h3>Role.java</h3>
+
+<div class="code-box">
+<pre><code>
+package com.example.blog.model.enums;
+
+public enum Role {
+    USER, ADMIN
+}
+
+</code></pre>
+</div>
+<h3>UserRepository.java</h3>
+
+<div class="code-box">
+<pre><code>
+package com.example.blog.repository;
+
+import com.example.blog.model.User;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import java.util.Optional;
+
+public interface UserRepository extends MongoRepository<User, String> {
+    Optional<User> findByEmail(String email);
+    boolean existsByEmail(String email);
+}
+
+</code></pre>
+</div>
+<h3>RegisterRequest.java</h3>
+
+<div class="code-box">
+<pre><code>
+package com.example.blog.dto;
+
+import lombok.Data;
+
+@Data
+public class RegisterRequest {
+    private String username;
+    private String email;
+    private String password;
+}
+
+</code></pre>
+</div>
+<h3>LoginRequest.java</h3>
+
+<div class="code-box">
+<pre><code>
+package com.example.blog.dto;
+
+import lombok.Data;
+
+@Data
+public class LoginRequest {
+    private String email;
+    private String password;
+}
+
+
+</code></pre>
+</div>
+<h3>AuthResponse.java</h3>
+
+<div class="code-box">
+<pre><code>
+package com.example.blog.dto;
+
+import com.example.blog.model.enums.Role;
+import lombok.Builder;
+import lombok.Data;
+
+@Data
+@Builder
+public class AuthResponse {
+    private String token;
+    private String id;
+    private String username;
+    private String email;
+    private Role role;
+}
+
+
+</code></pre>
+</div>
+<h3>JwtService.java</h3>
+
+<div class="code-box">
+<pre><code>
+package com.example.blog.security;
+
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import java.security.Key;
+import java.util.Date;
+
+@Service
+public class JwtService {
+
+    @Value("${jwt.secret}")
+    private String secret;
+
+    @Value("${jwt.expiration-ms}")
+    private long expirationMs;
+
+    private Key key() {
+        return Keys.hmacShaKeyFor(secret.getBytes());
+    }
+
+    public String generateToken(String email) {
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                .signWith(key(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+}
+
+</code></pre>
+</div>
+<h3>AuthService.java</h3>
+
+<div class="code-box">
+<pre><code>
+package com.example.blog.service;
+
+import com.example.blog.dto.*;
+import com.example.blog.model.User;
+import com.example.blog.model.enums.Role;
+import com.example.blog.repository.UserRepository;
+import com.example.blog.security.JwtService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class AuthService {
+
+    private final UserRepository userRepo;
+    private final PasswordEncoder encoder;
+    private final AuthenticationManager authManager;
+    private final JwtService jwtService;
+
+    public AuthResponse register(RegisterRequest req) {
+
+        if (userRepo.existsByEmail(req.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        User user = User.builder()
+                .username(req.getUsername())
+                .email(req.getEmail())
+                .password(encoder.encode(req.getPassword()))
+                .role(Role.USER)
+                .build();
+
+        userRepo.save(user);
+
+        return AuthResponse.builder()
+                .token(jwtService.generateToken(user.getEmail()))
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .build();
+    }
+
+    public AuthResponse login(LoginRequest req) {
+
+        authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword())
+        );
+
+        User user = userRepo.findByEmail(req.getEmail())
+                .orElseThrow();
+
+        return AuthResponse.builder()
+                .token(jwtService.generateToken(user.getEmail()))
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .build();
+    }
+}
+
+</code></pre>
+</div>
+<h3>AuthController.java</h3>
+
+<div class="code-box">
+<pre><code>
+package com.example.blog.controller;
+
+import com.example.blog.dto.*;
+import com.example.blog.service.AuthService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+public class AuthController {
+
+    private final AuthService authService;
+
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest req) {
+        return ResponseEntity.ok(authService.register(req));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest req) {
+        return ResponseEntity.ok(authService.login(req));
+    }
+}
+
+
+</code></pre>
+</div>
+<h3>SecurityConfig.java</h3>
+
+<div class="code-box">
+<pre><code>
+package com.example.blog.config;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.*;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@RequiredArgsConstructor
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filter(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .anyRequest().authenticated()
+                );
+
+        return http.build();
+    }
+
+    @Bean
+    public AuthenticationManager authManager(AuthenticationConfiguration cfg) throws Exception {
+        return cfg.getAuthenticationManager();
+    }
+
+    @Bean
+    public PasswordEncoder encoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+
+
+
+</code></pre>
+</div>
+
 
         <i class="fa-solid fa-location-dot fa-bounce icon" style="color: #1dd110;"></i>
         <input
