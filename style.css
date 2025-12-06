@@ -156,3 +156,41 @@ button:active {
     margin: 0px;
     margin-right: 500px;
 }
+/* Parent container for all code sections */
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* Title above each code box */
+.container h3 {
+  margin-top: 25px;
+  margin-bottom: 6px;
+  font-family: sans-serif;
+  font-weight: 600;
+}
+
+/* Code block box */
+.code-box {
+  background: #1e1e1e;
+  color: #dcdcdc;
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  font-family: Consolas, monospace;
+  font-size: 14px;
+  overflow-x: auto;
+  margin-bottom: 22px;
+}
+
+/* Remove weird spacing */
+.code-box pre {
+  margin: 0;
+}
+
+/* Optional hover effect */
+.code-box:hover {
+  background: #272727;
+  transition: 0.2s;
+}
