@@ -49,64 +49,49 @@ h3 {
 
 <div class="code-box">
 <pre><code>
-&lt;project&gt;
+//&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
     &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
-    &lt;groupId&gt;com.example&lt;/groupId&gt;
-    &lt;artifactId&gt;blog-backend&lt;/artifactId&gt;
-    &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+    &lt;parent&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+        &lt;version&gt;3.3.5&lt;/version&gt;   &lt;!-- change from 3.4.x --&gt;
+    &lt;/parent&gt;
 
+    &lt;groupId&gt;com.example&lt;/groupId&gt;
+    &lt;artifactId&gt;blog&lt;/artifactId&gt;
+    &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+    &lt;name&gt;blog&lt;/name&gt;
+    &lt;description&gt;Demo project for Spring Boot&lt;/description&gt;
+    &lt;url/&gt;
+    &lt;licenses&gt;
+        &lt;license/&gt;
+    &lt;/licenses&gt;
+    &lt;developers&gt;
+        &lt;developer/&gt;
+    &lt;/developers&gt;
+    &lt;scm&gt;
+        &lt;connection/&gt;
+        &lt;developerConnection/&gt;
+        &lt;tag/&gt;
+        &lt;url/&gt;
+    &lt;/scm&gt;
     &lt;properties&gt;
         &lt;java.version&gt;17&lt;/java.version&gt;
-        &lt;spring.boot.version&gt;3.3.1&lt;/spring.boot.version&gt;
-        &lt;jjwt.version&gt;0.11.5&lt;/jjwt.version&gt;
     &lt;/properties&gt;
-
-    &lt;dependencyManagement&gt;
-        &lt;dependencies&gt;
-            &lt;dependency&gt;
-                &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-                &lt;artifactId&gt;spring-boot-dependencies&lt;/artifactId&gt;
-                &lt;version&gt;${spring.boot.version}&lt;/version&gt;
-                &lt;type&gt;pom&lt;/type&gt;
-                &lt;scope&gt;import&lt;/scope&gt;
-            &lt;/dependency&gt;
-        &lt;/dependencies&gt;
-    &lt;/dependencyManagement&gt;
-
     &lt;dependencies&gt;
-        &lt;dependency&gt;
-            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
-        &lt;/dependency&gt;
-
         &lt;dependency&gt;
             &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
             &lt;artifactId&gt;spring-boot-starter-data-mongodb&lt;/artifactId&gt;
         &lt;/dependency&gt;
-
         &lt;dependency&gt;
             &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
             &lt;artifactId&gt;spring-boot-starter-security&lt;/artifactId&gt;
         &lt;/dependency&gt;
-
         &lt;dependency&gt;
-            &lt;groupId&gt;io.jsonwebtoken&lt;/groupId&gt;
-            &lt;artifactId&gt;jjwt-api&lt;/artifactId&gt;
-            &lt;version&gt;${jjwt.version}&lt;/version&gt;
-        &lt;/dependency&gt;
-
-        &lt;dependency&gt;
-            &lt;groupId&gt;io.jsonwebtoken&lt;/groupId&gt;
-            &lt;artifactId&gt;jjwt-impl&lt;/artifactId&gt;
-            &lt;version&gt;${jjwt.version}&lt;/version&gt;
-            &lt;scope&gt;runtime&lt;/scope&gt;
-        &lt;/dependency&gt;
-
-        &lt;dependency&gt;
-            &lt;groupId&gt;io.jsonwebtoken&lt;/groupId&gt;
-            &lt;artifactId&gt;jjwt-jackson&lt;/artifactId&gt;
-            &lt;version&gt;${jjwt.version}&lt;/version&gt;
-            &lt;scope&gt;runtime&lt;/scope&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
         &lt;/dependency&gt;
 
         &lt;dependency&gt;
@@ -114,33 +99,84 @@ h3 {
             &lt;artifactId&gt;lombok&lt;/artifactId&gt;
             &lt;optional&gt;true&lt;/optional&gt;
         &lt;/dependency&gt;
-
         &lt;dependency&gt;
             &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
             &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
             &lt;scope&gt;test&lt;/scope&gt;
         &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.security&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-security-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;io.jsonwebtoken&lt;/groupId&gt;
+            &lt;artifactId&gt;jjwt-api&lt;/artifactId&gt;
+            &lt;version&gt;0.11.5&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;io.jsonwebtoken&lt;/groupId&gt;
+            &lt;artifactId&gt;jjwt-impl&lt;/artifactId&gt;
+            &lt;version&gt;0.11.5&lt;/version&gt;
+            &lt;scope&gt;runtime&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;io.jsonwebtoken&lt;/groupId&gt;
+            &lt;artifactId&gt;jjwt-jackson&lt;/artifactId&gt;
+            &lt;version&gt;0.11.5&lt;/version&gt;
+            &lt;scope&gt;runtime&lt;/scope&gt;
+        &lt;/dependency&gt;
     &lt;/dependencies&gt;
+
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+                &lt;configuration&gt;
+                    &lt;annotationProcessorPaths&gt;
+                        &lt;path&gt;
+                            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+                            &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+                        &lt;/path&gt;
+                    &lt;/annotationProcessorPaths&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+                &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+                &lt;configuration&gt;
+                    &lt;excludes&gt;
+                        &lt;exclude&gt;
+                            &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+                            &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+                        &lt;/exclude&gt;
+                    &lt;/excludes&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
 
 &lt;/project&gt;
 </code></pre>
+
 </div>
 
-<h3>BlogApplication.java</h3>
+<h3>.properties</h3>
 
 <div class="code-box">
 <pre><code>
-package com.example.blog;
+spring.application.name=blog-api
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+# Mongo config
+spring.data.mongodb.uri=mongodb://localhost:27017/blogdb
 
-@SpringBootApplication
-public class BlogApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(BlogApplication.class, args);
-    }
-}
+# Security / JWT
+jwt.secret=ia86%ap0jaiglYkng32947O9injgkf8*js1kJi98KSS393#qi92hy
+jwt.exp=3600000
+
+server.port=8080
+
 
 </code></pre>
 </div>
@@ -150,26 +186,28 @@ public class BlogApplication {
 <pre><code>
 package com.example.blog.model;
 
-import com.example.blog.model.enums.Role;
-import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
+import java.time.Instant;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Document("users")
 public class User {
 
     @Id
-    private String id;
+    public String id;
 
-    private String username;
-    private String email;
-    private String password;
-    private Role role;
+    public String username;
+    @Indexed(unique = true)
+    public String email;
+    public String password;  // hashed
+    public Role role = Role.USER;   // default
+    public boolean enabled = true;
+
+    public Instant createdAt = Instant.now();
+    public Instant updatedAt = Instant.now();
 }
+
 
 </code></pre>
 </div>
@@ -177,193 +215,186 @@ public class User {
 
 <div class="code-box">
 <pre><code>
-package com.example.blog.model.enums;
+package com.example.blog.model;
 
 public enum Role {
-    USER, ADMIN
+    ADMIN,
+    USER
 }
+
 
 </code></pre>
 </div>
-<h3>UserRepository.java</h3>
+<h3>Blog.java</h3>
 
 <div class="code-box">
 <pre><code>
-package com.example.blog.repository;
+package com.example.blog.model;
 
-import com.example.blog.model.User;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.Instant;
+import java.util.List;
+
+@Document("blogs")
+public class Blog {
+
+    @Id
+    public String id;
+
+    public String title;
+    public String slug;
+    public String content;
+    public String excerpt;
+
+    public String authorId;         // user ID
+    public List<String> tags;
+
+    public Status status = Status.DRAFT;
+
+    public Instant createdAt = Instant.now();
+    public Instant updatedAt = Instant.now();
+
+    public enum Status {
+        DRAFT, PUBLISHED
+    }
+}
+
+
+</code></pre>
+</div>
+<h3>BlogRepo.java</h3>
+
+<div class="code-box">
+<pre><code>
+package com.example.blog.repo;
+
+import com.example.blog.model.Blog;
 import org.springframework.data.mongodb.repository.MongoRepository;
+
 import java.util.Optional;
 
-public interface UserRepository extends MongoRepository<User, String> {
-    Optional<User> findByEmail(String email);
-    boolean existsByEmail(String email);
+public interface BlogRepo extends MongoRepository<Blog, String> {
+    Optional<Blog> findBySlug(String slug);
 }
+
 
 </code></pre>
 </div>
-<h3>RegisterRequest.java</h3>
+<h3>UserRepo.java</h3>
 
 <div class="code-box">
 <pre><code>
-package com.example.blog.dto;
+package com.example.blog.repo;
 
-import lombok.Data;
+import com.example.blog.model.Blog;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-@Data
-public class RegisterRequest {
-    private String username;
-    private String email;
-    private String password;
-}
+import java.util.Optional;
 
-</code></pre>
-</div>
-<h3>LoginRequest.java</h3>
-
-<div class="code-box">
-<pre><code>
-package com.example.blog.dto;
-
-import lombok.Data;
-
-@Data
-public class LoginRequest {
-    private String email;
-    private String password;
+public interface BlogRepo extends MongoRepository<Blog, String> {
+    Optional<Blog> findBySlug(String slug);
 }
 
 
 </code></pre>
 </div>
-<h3>AuthResponse.java</h3>
-
-<div class="code-box">
-<pre><code>
-package com.example.blog.dto;
-
-import com.example.blog.model.enums.Role;
-import lombok.Builder;
-import lombok.Data;
-
-@Data
-@Builder
-public class AuthResponse {
-    private String token;
-    private String id;
-    private String username;
-    private String email;
-    private Role role;
-}
-
-
-</code></pre>
-</div>
-<h3>JwtService.java</h3>
+<h3>JwtFilter.java</h3>
 
 <div class="code-box">
 <pre><code>
 package com.example.blog.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import java.security.Key;
-import java.util.Date;
+import org.springframework.stereotype.Component;
+import java.io.IOException;
 
-@Service
-public class JwtService {
+@Component
+public class JwtFilter implements Filter {
 
     @Value("${jwt.secret}")
     private String secret;
+@Override
+public void doFilter(ServletRequest req, ServletResponse res, FilterChain fc)
+        throws IOException, ServletException {
 
-    @Value("${jwt.expiration-ms}")
-    private long expirationMs;
+    HttpServletRequest r = (HttpServletRequest) req;
 
-    private Key key() {
-        return Keys.hmacShaKeyFor(secret.getBytes());
+    // Allow login & register
+    if(r.getRequestURI().startsWith("/api/auth/login") ||
+       r.getRequestURI().startsWith("/api/auth/register")) {
+        fc.doFilter(req, res);
+        return;
     }
 
-    public String generateToken(String email) {
-        return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
-                .signWith(key(), SignatureAlgorithm.HS256)
-                .compact();
+    // ---- Read token from cookie ----
+    String token = null;
+    if(r.getCookies() != null) {
+        for(Cookie c : r.getCookies()) {
+            if(c.getName().equals("jwt")) {
+                token = c.getValue();
+            }
+        }
     }
+
+    if(token != null) {
+        try {
+            String uid = Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+
+            req.setAttribute("uid", uid);
+        } catch (Exception ignored) {}
+    }
+
+    fc.doFilter(req, res);
 }
+
+
+}
+
+
 
 </code></pre>
 </div>
-<h3>AuthService.java</h3>
+<h3>SecurityConfig.java</h3>
 
 <div class="code-box">
 <pre><code>
-package com.example.blog.service;
+package com.example.blog.security;
 
-import com.example.blog.dto.*;
-import com.example.blog.model.User;
-import com.example.blog.model.enums.Role;
-import com.example.blog.repository.UserRepository;
-import com.example.blog.security.JwtService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.*;
+import org.springframework.context.annotation.*;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
-@Service
-@RequiredArgsConstructor
-public class AuthService {
+@Configuration
+public class SecurityConfig {
 
-    private final UserRepository userRepo;
-    private final PasswordEncoder encoder;
-    private final AuthenticationManager authManager;
-    private final JwtService jwtService;
-
-    public AuthResponse register(RegisterRequest req) {
-
-        if (userRepo.existsByEmail(req.getEmail())) {
-            throw new RuntimeException("Email already exists");
-        }
-
-        User user = User.builder()
-                .username(req.getUsername())
-                .email(req.getEmail())
-                .password(encoder.encode(req.getPassword()))
-                .role(Role.USER)
-                .build();
-
-        userRepo.save(user);
-
-        return AuthResponse.builder()
-                .token(jwtService.generateToken(user.getEmail()))
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .build();
+    @Bean
+    public SecurityFilterChain filter(HttpSecurity http, JwtFilter f) throws Exception {
+        http.csrf(cs -> cs.disable())
+           .addFilterBefore(f, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
+           .authorizeHttpRequests(a -> a
+                .anyRequest().permitAll()
+           );
+        return http.build();
     }
 
-    public AuthResponse login(LoginRequest req) {
-
-        authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword())
-        );
-
-        User user = userRepo.findByEmail(req.getEmail())
-                .orElseThrow();
-
-        return AuthResponse.builder()
-                .token(jwtService.generateToken(user.getEmail()))
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .build();
-    }
+    @Bean
+    PasswordEncoder pw(){ return new BCryptPasswordEncoder(); }
 }
+
+
 
 </code></pre>
 </div>
@@ -371,33 +402,187 @@ public class AuthService {
 
 <div class="code-box">
 <pre><code>
-package com.example.blog.controller;
+package com.example.blog.web;
 
-import com.example.blog.dto.*;
-import com.example.blog.service.AuthService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import com.example.blog.model.Role;
+import com.example.blog.model.User;
+import com.example.blog.repo.UserRepo;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import java.security.Key;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.Instant;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+    private final UserRepo repo;
+    private final PasswordEncoder encoder;
+    private final String secret;
+    private final long exp;
 
+    public AuthController(UserRepo repo, PasswordEncoder encoder,
+                          @Value("${jwt.secret}") String secret,
+                          @Value("${jwt.exp}") long exp) {
+        this.repo = repo;
+        this.encoder = encoder;
+        this.secret = secret;
+        this.exp = exp;
+    }
+
+    // ----------- REGISTER -----------
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest req) {
-        return ResponseEntity.ok(authService.register(req));
+    public Map<String,String> register(@RequestBody Map<String,String> req){
+        User u = new User();
+        u.username = req.get("username");
+        u.email = req.get("email");
+        u.password = encoder.encode(req.get("password"));
+        u.role = Role.USER;
+        u.enabled = true;
+        u.createdAt = Instant.now();
+        u.updatedAt = Instant.now();
+        repo.save(u);
+        return Map.of("message","registered");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest req) {
-        return ResponseEntity.ok(authService.login(req));
+public Map<String,String> login(@RequestBody Map<String,String> req, HttpServletResponse response) {
+    User u = repo.findByEmail(req.get("email"))
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    if(!encoder.matches(req.get("password"), u.password))
+        throw new RuntimeException("Bad credentials");
+
+   byte[] keyBytes = secret.getBytes();
+Key signingKey = Keys.hmacShaKeyFor(keyBytes);
+
+String token = Jwts.builder()
+        .setSubject(u.id)
+        .setExpiration(new Date(System.currentTimeMillis() + exp))
+        .signWith(signingKey, SignatureAlgorithm.HS256)
+        .compact();
+
+    // ------ SET COOKIE ------
+    Cookie cookie = new Cookie("jwt", token);
+    cookie.setHttpOnly(true);
+    cookie.setPath("/");
+    cookie.setMaxAge((int)(exp/1000));
+    response.addCookie(cookie);
+
+    return Map.of("message", "logged_in");
+}
+
+
+    // ----------- GET CURRENT USER -----------
+    @GetMapping("/me")
+    public User me(@RequestAttribute("uid") String uid){
+        User u = repo.findById(uid).orElseThrow();
+        if(!u.enabled) throw new RuntimeException("USER DISABLED");
+        return u;
     }
 }
 
 
+</code></pre>
+</div>
+<h3>BlogController.java</h3>
+
+<div class="code-box">
+<pre><code>
+package com.example.blog.web;
+
+import com.example.blog.model.Blog;
+import com.example.blog.model.Role;
+import com.example.blog.model.User;
+import com.example.blog.repo.BlogRepo;
+import com.example.blog.repo.UserRepo;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/blogs")
+public class BlogController {
+
+    private final BlogRepo blogRepo;
+    private final UserRepo userRepo;
+
+    public BlogController(BlogRepo blogRepo, UserRepo userRepo) {
+        this.blogRepo = blogRepo;
+        this.userRepo = userRepo;
+    }
+
+    // ---------------- CREATE (Authenticated)
+    @PostMapping
+    public Blog create(@RequestBody Blog b, @RequestAttribute("uid") String uid) {
+        b.id = null;
+        b.authorId = uid;
+        b.createdAt = Instant.now();
+        b.updatedAt = Instant.now();
+        blogRepo.save(b);
+        return b;
+    }
+
+    // ---------------- READ PUBLIC (BY ID)
+    @GetMapping("/{id}")
+    public Blog getById(@PathVariable String id) {
+        return blogRepo.findById(id).orElseThrow();
+    }
+
+    // ---------------- READ PUBLIC (BY SLUG)
+    @GetMapping("/slug/{slug}")
+    public Blog getBySlug(@PathVariable String slug) {
+        return blogRepo.findBySlug(slug).orElseThrow();
+    }
+
+    // ---------------- UPDATE (Owner or Admin)
+    @PutMapping("/{id}")
+    public Blog update(@PathVariable String id, @RequestBody Blog data,
+                       @RequestAttribute("uid") String uid) {
+
+        Blog b = blogRepo.findById(id).orElseThrow();
+        User u = userRepo.findById(uid).orElseThrow();
+
+        // Owner or ADMIN only
+        if (!b.authorId.equals(uid) && u.role != Role.ADMIN)
+            throw new RuntimeException("Forbidden");
+
+        b.title = data.title;
+        b.slug = data.slug;
+        b.content = data.content;
+        b.excerpt = data.excerpt;
+        b.tags = data.tags;
+        b.status = data.status;
+        b.updatedAt = Instant.now();
+
+        return blogRepo.save(b);
+    }
+
+    // ---------------- DELETE (Owner or Admin)
+    @DeleteMapping("/{id}")
+    public Map<String,String> delete(@PathVariable String id,
+                                     @RequestAttribute("uid") String uid) {
+
+        Blog b = blogRepo.findById(id).orElseThrow();
+        User u = userRepo.findById(uid).orElseThrow();
+
+        if (!b.authorId.equals(uid) && u.role != Role.ADMIN)
+            throw new RuntimeException("Forbidden");
+
+        blogRepo.delete(b);
+        return Map.of("message", "deleted");
+    }
+}
 </code></pre>
 </div>
 <h3>SecurityConfig.java</h3>
