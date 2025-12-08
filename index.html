@@ -166,16 +166,132 @@ h3 {
 
 <div class="code-box">
 <pre><code>
-spring.application.name=blog-api
+package com.example.blog.web;
 
-# Mongo config
-spring.data.mongodb.uri=mongodb://localhost:27017/blogdb
+import com.example.blog.model.Role;
+import com.example.blog.model.User;
+import com.example.blog.repo.UserRepo;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import java.security.Key;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-# Security / JWT
-jwt.secret=ia86%ap0jaiglYkng32947O9injgkf8*js1kJi98KSS393#qi92hy
-jwt.exp=3600000
+import java.util.Optional;
+import java.util.Map;
 
-server.port=8080
+import java.time.Instant;
+import java.util.Date;
+
+
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    private final UserRepo repo;
+    private final PasswordEncoder encoder;
+    private final String secret;
+    private final long exp;
+
+    public AuthController(UserRepo repo, PasswordEncoder encoder,
+                          @Value("${jwt.secret}") String secret,
+                          @Value("${jwt.exp}") long exp) {
+        this.repo = repo;
+        this.encoder = encoder;
+        this.secret = secret;
+        this.exp = exp;
+    }
+
+    // ----------- REGISTER -----------
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody Map<String,String> req){
+        // check duplicate email
+        if (repo.findByEmail(req.get("email")).isPresent()) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT) // 409
+                    .body(Map.of("error","Email already exists"));
+        }
+
+        User u = new User();
+        u.username = req.get("username");
+        u.email = req.get("email");
+        u.password = encoder.encode(req.get("password"));
+        u.role = Role.USER;
+        u.enabled = true;
+        u.createdAt = Instant.now();
+        u.updatedAt = Instant.now();
+        repo.save(u);
+
+        return ResponseEntity.ok(Map.of("message","registered"));
+    }
+
+    // ----------- LOGIN -----------//
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String,String> req, HttpServletResponse response) {
+        Optional<User> opt = repo.findByEmail(req.get("email"));
+
+        if (opt.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "User not found"));
+        }
+
+        User u = opt.get();
+
+        if(!encoder.matches(req.get("password"), u.password)) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Bad credentials"));
+        }
+
+        byte[] keyBytes = secret.getBytes();
+        Key signingKey = Keys.hmacShaKeyFor(keyBytes);
+
+        String token = Jwts.builder()
+                .setSubject(u.id)
+                .setExpiration(new Date(System.currentTimeMillis() + exp))
+                .signWith(signingKey, SignatureAlgorithm.HS256)
+                .compact();
+
+        // ------ SET COOKIE ------
+        Cookie cookie = new Cookie("jwt", token);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge((int)(exp/1000));
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(Map.of("message", "logged_in"));
+    }
+
+
+    // ----------- GET CURRENT USER -----------
+    @GetMapping("/me")
+    public ResponseEntity<?> me(@RequestAttribute("uid") String uid){
+        Optional<User> opt = repo.findById(uid);
+
+        if (opt.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "User not found"));
+        }
+
+        User u = opt.get();
+
+        if(!u.enabled) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "User disabled"));
+        }
+
+        return ResponseEntity.ok(u);
+    }
+}
 
 
 </code></pre>
@@ -185,29 +301,157 @@ server.port=8080
 <div class="code-box">
 <pre><code>
 package com.example.blog.model;
+package com.example.blog.web;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.index.Indexed;
+import com.example.blog.model.Blog;
+import com.example.blog.model.Role;
+import com.example.blog.model.User;
+import com.example.blog.repo.BlogRepo;
+import com.example.blog.repo.UserRepo;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import java.time.Instant;
+import java.util.Map;
+import java.util.Optional;
 
-@Document("users")
-public class User {
+@RestController
+@RequestMapping("/api/blogs")
+public class BlogController {
 
-    @Id
-    public String id;
+    private final BlogRepo blogRepo;
+    private final UserRepo userRepo;
 
-    public String username;
-    @Indexed(unique = true)
-    public String email;
-    public String password;  // hashed
-    public Role role = Role.USER;   // default
-    public boolean enabled = true;
+    public BlogController(BlogRepo blogRepo, UserRepo userRepo) {
+        this.blogRepo = blogRepo;
+        this.userRepo = userRepo;
+    }
 
-    public Instant createdAt = Instant.now();
-    public Instant updatedAt = Instant.now();
+    // ---------------- CREATE (Authenticated)
+    @PostMapping
+    public ResponseEntity<?> create(@RequestBody Blog b, @RequestAttribute("uid") String uid) {
+
+        b.id = null;
+        b.authorId = uid;
+        b.createdAt = Instant.now();
+        b.updatedAt = Instant.now();
+        blogRepo.save(b);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(b);
+    }
+
+    // ---------------- READ PUBLIC (BY ID)
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getById(@PathVariable String id) {
+
+        Optional<Blog> opt = blogRepo.findById(id);
+
+        if(opt.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error","Blog not found"));
+        }
+
+        return ResponseEntity.ok(opt.get());
+    }
+
+    // ---------------- READ PUBLIC (BY SLUG)
+    @GetMapping("/slug/{slug}")
+    public ResponseEntity<?> getBySlug(@PathVariable String slug) {
+
+        Optional<Blog> opt = blogRepo.findBySlug(slug);
+
+        if(opt.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error","Blog not found"));
+        }
+
+        return ResponseEntity.ok(opt.get());
+    }
+
+    // ---------------- UPDATE (Owner or Admin)
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable String id,
+                                    @RequestBody Blog data,
+                                    @RequestAttribute("uid") String uid) {
+
+        // Find blog
+        Optional<Blog> optBlog = blogRepo.findById(id);
+        if(optBlog.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error","Blog not found"));
+        }
+
+        // Find user
+        Optional<User> optUser = userRepo.findById(uid);
+        if(optUser.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error","User not found"));
+        }
+
+        Blog b = optBlog.get();
+        User u = optUser.get();
+
+        // Forbidden check
+        if (!b.authorId.equals(uid) && u.role != Role.ADMIN) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error","Forbidden"));
+        }
+
+        // Update data
+        b.title = data.title;
+        b.slug = data.slug;
+        b.content = data.content;
+        b.excerpt = data.excerpt;
+        b.tags = data.tags;
+        b.status = data.status;
+        b.updatedAt = Instant.now();
+
+        blogRepo.save(b);
+
+        return ResponseEntity.ok(b);
+    }
+
+    // ---------------- DELETE (Owner or Admin)
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable String id,
+                                    @RequestAttribute("uid") String uid) {
+
+        Optional<Blog> optBlog = blogRepo.findById(id);
+        if(optBlog.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error","Blog not found"));
+        }
+
+        Optional<User> optUser = userRepo.findById(uid);
+        if(optUser.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error","User not found"));
+        }
+
+        Blog b = optBlog.get();
+        User u = optUser.get();
+
+        if (!b.authorId.equals(uid) && u.role != Role.ADMIN) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error","Forbidden"));
+        }
+
+        blogRepo.delete(b);
+
+        return ResponseEntity.ok(Map.of("message","deleted"));
+    }
 }
-
 
 </code></pre>
 </div>
